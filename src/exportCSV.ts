@@ -1,5 +1,6 @@
 // exports habit log data from the app into a CSV file
 // Expo File Sharing Documentation: https://docs.expo.dev/versions/latest/sdk/sharing/
+// Expo File System: https://docs.expo.dev/versions/latest/sdk/filesystem/
 import { File, Paths } from "expo-file-system";
 import * as Sharing from "expo-sharing"; // So the user can export the CSV file  to another app such as email, files, or cloud storage.
 
