@@ -1,3 +1,4 @@
+
 import { eq } from "drizzle-orm";
 import { useRouter } from "expo-router";
 import { useState } from "react";
@@ -18,30 +19,30 @@ export default function LoginScreen() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-
+// Check if fields are complete
   const handleLogin = async () => {
     if (!email || !password) {
       Alert.alert("Missing fields", "Please fill in all fields.");
       return;
     }
-
+// search users DB for an account that matches the entered email 
     const result = await db
       .select()
       .from(users)
       .where(eq(users.email, email));
-
+// if no matching account found, show error 
     if (result.length === 0) {
       Alert.alert("Error", "No account found for this email.");
       return;
     }
 
     const user = result[0];
-
+// compare entered password with saved password
     if (user.password !== password) {
       Alert.alert("Error", "Incorrect password.");
       return;
     }
-
+// if successful, shows sucess message and route user to habits page
     Alert.alert("Success", "Signed in successfully.");
     router.replace("/(tabs)/habits");
   };
@@ -52,7 +53,7 @@ export default function LoginScreen() {
         <Text style={styles.kicker}>DAILY QUEST</Text>
         <Text style={styles.title}>Sign In</Text>
         <Text style={styles.subtitle}>
-          Welcome back. Continue your habit journey.
+          Welcome back. Continue logging habits.
         </Text>
 
         <View style={styles.card}>

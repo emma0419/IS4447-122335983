@@ -1,6 +1,8 @@
 // Insights page allows users to review their habit progress through summary statistics and a bar chart. 
 // I added filtering options so the user can switch between daily, weekly, and monthly views.
 // I also included a CSV export feature so habit log data can be downloaded and used outside the app if needed.
+// React Native Chart: https://www.npmjs.com/package/react-native-gifted-charts
+// Expo File Sharing: https://docs.expo.dev/versions/latest/sdk/sharing/
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {

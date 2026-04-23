@@ -1,3 +1,4 @@
+// Targets screen where users can view and manage the goals they have set for different habits
 import { eq } from "drizzle-orm";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
@@ -17,6 +18,7 @@ export default function TargetsScreen() {
   const [targetList, setTargetList] = useState<any[]>([]);
   const router = useRouter();
 
+  // Load targets and combine them with habits, categories, and logs so progress can be caluclated
   const loadTargets = async () => {
     const targetResults = await db.select().from(targets);
     const habitResults = await db.select().from(habits);
@@ -26,13 +28,15 @@ export default function TargetsScreen() {
     const merged = targetResults.map((target) => {
       const habit = habitResults.find((h) => h.id === target.habitId);
       const category = categoryResults.find((c) => c.id === target.categoryId);
-
+// find all logs related to the same habit as the target.
       const relatedLogs = logResults.filter(
         (log) => log.habitId === target.habitId
       );
-
+// I calculate the current total progress by adding the values of all related logs.
       const currentTotal = relatedLogs.reduce((sum, log) => sum + log.value, 0);
+      // I calculate how much is left to reach the target.
       const remaining = Math.max(target.targetValue - currentTotal, 0);
+      // Check if target is met
       const isMet = currentTotal >= target.targetValue;
 
       return {
@@ -44,10 +48,10 @@ export default function TargetsScreen() {
         status: isMet ? "Met" : "Unmet",
       };
     });
-
+// Save results
     setTargetList(merged);
   };
-
+// This function deletes a target after the user confirms the action.
   const deleteTarget = async (id: number) => {
     Alert.alert("Delete Target", "Are you sure?", [
       { text: "Cancel", style: "cancel" },
@@ -56,6 +60,7 @@ export default function TargetsScreen() {
         style: "destructive",
         onPress: async () => {
           await db.delete(targets).where(eq(targets.id, id));
+          // After deleting, reload targets
           loadTargets();
         },
       },
@@ -71,9 +76,9 @@ export default function TargetsScreen() {
   return (
     <SafeAreaView style={styles.safeArea}>
       <FlatList
-        data={targetList}
+        data={targetList} // list of targets
         keyExtractor={(item) => item.id.toString()}
-        showsVerticalScrollIndicator={false}
+        showsVerticalScrollIndicator={false} //hide vertcial scroll
         contentContainerStyle={styles.content}
         ListHeaderComponent={
           <View>
@@ -82,7 +87,7 @@ export default function TargetsScreen() {
             <Text style={styles.subtitle}>
               Track progress toward your weekly and monthly goals in one place.
             </Text>
-
+{/* Button takes user to where they can create new target */}
             <TouchableOpacity
               style={styles.addButton}
               onPress={() => router.push("/targets/new")}
@@ -94,6 +99,7 @@ export default function TargetsScreen() {
           </View>
         }
         renderItem={({ item }) => {
+          // Calculate percentage for procress bar
           const progressPercent =
             item.targetValue > 0
               ? Math.min((item.currentTotal / item.targetValue) * 100, 100)
@@ -102,12 +108,13 @@ export default function TargetsScreen() {
           return (
             <View style={styles.card}>
               <View style={styles.topRow}>
+                {/* Shows whether the target is weekly or monthly  */}
                 <View style={styles.periodBadge}>
                   <Text style={styles.periodBadgeText}>
                     {item.periodType.toUpperCase()} TARGET
                   </Text>
                 </View>
-
+           {/* Badge shows whether target has been met or not */}
                 <View
                   style={[
                     styles.statusBadge,
@@ -128,10 +135,10 @@ export default function TargetsScreen() {
                   </Text>
                 </View>
               </View>
-
+            {/* Show habit name and related category */}
               <Text style={styles.habitName}>{item.habitName}</Text>
               <Text style={styles.categoryText}>{item.categoryName}</Text>
-
+            {/* Main target values summary */}
               <View style={styles.statsBlock}>
                 <View style={styles.statRow}>
                   <Text style={styles.statLabel}>Target Value</Text>
@@ -148,7 +155,7 @@ export default function TargetsScreen() {
                   <Text style={styles.statValue}>{item.remaining}</Text>
                 </View>
               </View>
-
+            {/* Display visual progress bar */}
               <View style={styles.progressSection}>
                 <View style={styles.progressHeader}>
                   <Text style={styles.progressLabel}>Progress</Text>
@@ -169,7 +176,7 @@ export default function TargetsScreen() {
                   />
                 </View>
               </View>
-
+{/* Deletes the selcted target */}
               <TouchableOpacity
                 style={styles.deleteButton}
                 onPress={() => deleteTarget(item.id)}
@@ -179,6 +186,7 @@ export default function TargetsScreen() {
             </View>
           );
         }}
+        //IF no targets, show message
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Text style={styles.emptyTitle}>No targets yet</Text>

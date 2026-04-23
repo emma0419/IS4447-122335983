@@ -1,3 +1,4 @@
+// Register Screen. Allows user to create account. 
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import {
@@ -14,17 +15,18 @@ import { users } from "../src/db/schema";
 
 export default function RegisterScreen() {
   const router = useRouter();
-
+// Store users name, email, and password.
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
+  // Check required fields are complete, if not show message
   const handleRegister = async () => {
     if (!name || !email || !password) {
       Alert.alert("Missing fields", "Please fill in all fields.");
       return;
     }
-
+// insert new user in the DB 
     try {
       await db.insert(users).values({
         name,
@@ -32,7 +34,7 @@ export default function RegisterScreen() {
         password,
         createdAt: new Date().toISOString(),
       });
-
+// If registration successful, show success message and send user to login screen
       Alert.alert("Success", "Account created successfully.");
       router.replace("/login");
     } catch (error) {

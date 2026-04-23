@@ -1,3 +1,4 @@
+// Categories screen where userws can view, add, edit and delte habit categories
 import { eq } from "drizzle-orm";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
@@ -16,12 +17,12 @@ import { categories } from "../src/db/schema";
 export default function CategoriesScreen() {
   const [categoryList, setCategoryList] = useState<any[]>([]);
   const router = useRouter();
-
+// Load categories from the DB
   const loadCategories = async () => {
     const results = await db.select().from(categories);
     setCategoryList(results);
   };
-
+// Deletes category once user confirm the action
   const deleteCategory = async (id: number) => {
     Alert.alert("Delete Category", "Are you sure?", [
       { text: "Cancel", style: "cancel" },
@@ -31,8 +32,10 @@ export default function CategoriesScreen() {
         onPress: async () => {
           try {
             await db.delete(categories).where(eq(categories.id, id));
+            // After successfully deleting, reload categories
             loadCategories();
           } catch {
+            // If category still being used by habit, show error message instead of deleting it.
             Alert.alert(
               "Cannot delete category",
               "This category is used by one or more habits."
@@ -61,10 +64,11 @@ export default function CategoriesScreen() {
             <Text style={styles.kicker}>DAILY QUEST</Text>
             <Text style={styles.title}>Categories</Text>
             <Text style={styles.subtitle}>
-              Organise habits using colour-coded categories.
+              Organise habits using colour coded categories.
             </Text>
 
             <TouchableOpacity
+            // Button to take users to create new category
               style={styles.addButton}
               onPress={() => router.push("/categories/new")}
             >
@@ -74,6 +78,7 @@ export default function CategoriesScreen() {
             <Text style={styles.sectionTitle}>Your Categories</Text>
           </View>
         }
+        // How each category card is displayed
         renderItem={({ item }) => (
           <View style={styles.card}>
             <View style={styles.leftRow}>
@@ -85,13 +90,14 @@ export default function CategoriesScreen() {
               />
 
               <View>
+                {/* Display cat name  */}
                 <Text style={styles.name}>{item.name}</Text>
                 <Text style={styles.iconText}>
                   Icon: {item.icon}
                 </Text>
               </View>
             </View>
-
+         {/* Button to let user edit or delete a category */}
             <View style={styles.buttonRow}>
               <TouchableOpacity
                 style={[styles.smallButton, styles.editButton]}
@@ -114,6 +120,7 @@ export default function CategoriesScreen() {
             </View>
           </View>
         )}
+        // If no categories yet, display message
         ListEmptyComponent={
           <View style={styles.emptyState}>
             <Text style={styles.emptyTitle}>
