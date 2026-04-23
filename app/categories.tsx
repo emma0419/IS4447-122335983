@@ -3,10 +3,11 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
   Alert,
-  Button,
   FlatList,
+  SafeAreaView,
   StyleSheet,
   Text,
+  TouchableOpacity,
   View,
 } from "react-native";
 import { db } from "../src/db";
@@ -31,7 +32,7 @@ export default function CategoriesScreen() {
           try {
             await db.delete(categories).where(eq(categories.id, id));
             loadCategories();
-          } catch (error) {
+          } catch {
             Alert.alert(
               "Cannot delete category",
               "This category is used by one or more habits."
@@ -49,90 +50,233 @@ export default function CategoriesScreen() {
   );
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Categories</Text>
-
-      <Button
-        title="Add Category"
-        onPress={() => router.push("/categories/new")}
-      />
-
+    <SafeAreaView style={styles.safeArea}>
       <FlatList
         data={categoryList}
         keyExtractor={(item) => item.id.toString()}
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={styles.content}
+        ListHeaderComponent={
+          <View>
+            <Text style={styles.kicker}>DAILY QUEST</Text>
+            <Text style={styles.title}>Categories</Text>
+            <Text style={styles.subtitle}>
+              Organise habits using colour-coded categories.
+            </Text>
+
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={() => router.push("/categories/new")}
+            >
+              <Text style={styles.addButtonText}>Add Category</Text>
+            </TouchableOpacity>
+
+            <Text style={styles.sectionTitle}>Your Categories</Text>
+          </View>
+        }
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <View style={[styles.colorDot, { backgroundColor: item.color }]} />
+            <View style={styles.leftRow}>
+              <View
+                style={[
+                  styles.colorDot,
+                  { backgroundColor: item.color },
+                ]}
+              />
 
-            <View style={styles.textBlock}>
-              <Text style={styles.name}>{item.name}</Text>
-              <Text style={styles.icon}>Icon: {item.icon}</Text>
+              <View>
+                <Text style={styles.name}>{item.name}</Text>
+                <Text style={styles.iconText}>
+                  Icon: {item.icon}
+                </Text>
+              </View>
             </View>
 
-            <Button
-              title="Edit"
-              onPress={() =>
-                router.push({
-                  pathname: "/categories/edit/[id]",
-                  params: { id: item.id.toString() },
-                } as any)
-              }
-            />
+            <View style={styles.buttonRow}>
+              <TouchableOpacity
+                style={[styles.smallButton, styles.editButton]}
+                onPress={() =>
+                  router.push({
+                    pathname: "/categories/edit/[id]",
+                    params: { id: item.id.toString() },
+                  } as any)
+                }
+              >
+                <Text style={styles.editButtonText}>Edit</Text>
+              </TouchableOpacity>
 
-            <Button
-              title="Delete"
-              color="red"
-              onPress={() => deleteCategory(item.id)}
-            />
+              <TouchableOpacity
+                style={[styles.smallButton, styles.deleteButton]}
+                onPress={() => deleteCategory(item.id)}
+              >
+                <Text style={styles.deleteButtonText}>Delete</Text>
+              </TouchableOpacity>
+            </View>
           </View>
         )}
         ListEmptyComponent={
-          <Text style={styles.empty}>No categories yet</Text>
+          <View style={styles.emptyState}>
+            <Text style={styles.emptyTitle}>
+              No categories yet
+            </Text>
+            <Text style={styles.emptyText}>
+              Create your first category to organise habits.
+            </Text>
+          </View>
         }
       />
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: {
+  safeArea: {
     flex: 1,
-    padding: 24,
+    backgroundColor: "#F8F1F4",
   },
-  title: {
-    fontSize: 28,
+
+  content: {
+    paddingHorizontal: 20,
+    paddingTop: 16,
+    paddingBottom: 28,
+  },
+
+  kicker: {
+    fontSize: 14,
     fontWeight: "700",
-    marginBottom: 16,
+    letterSpacing: 3,
+    color: "#C72C7C",
+    marginBottom: 6,
   },
+
+  title: {
+    fontSize: 34,
+    fontWeight: "800",
+    color: "#2A1721",
+  },
+
+  subtitle: {
+    marginTop: 8,
+    marginBottom: 20,
+    fontSize: 15,
+    lineHeight: 22,
+    color: "#7A5567",
+  },
+
+  addButton: {
+    minHeight: 54,
+    borderRadius: 18,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#E6469A",
+    marginBottom: 22,
+  },
+
+  addButtonText: {
+    color: "#FFFFFF",
+    fontSize: 16,
+    fontWeight: "700",
+  },
+
+  sectionTitle: {
+    fontSize: 24,
+    fontWeight: "800",
+    color: "#2A1721",
+    marginBottom: 14,
+  },
+
   card: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    padding: 18,
+    borderWidth: 1,
+    borderColor: "#F0C9DB",
+    marginBottom: 14,
+  },
+
+  leftRow: {
     flexDirection: "row",
     alignItems: "center",
-    padding: 16,
-    borderRadius: 10,
-    backgroundColor: "#f2f2f2",
-    marginBottom: 12,
-    gap: 12,
+    gap: 14,
+    marginBottom: 16,
   },
+
   colorDot: {
-    width: 18,
-    height: 18,
-    borderRadius: 9,
+    width: 20,
+    height: 20,
+    borderRadius: 10,
   },
-  textBlock: {
-    flex: 1,
-  },
+
   name: {
-    fontSize: 18,
-    fontWeight: "600",
+    fontSize: 20,
+    fontWeight: "700",
+    color: "#24131D",
   },
-  icon: {
+
+  iconText: {
     marginTop: 4,
     fontSize: 14,
-    color: "#666",
+    color: "#7A5567",
   },
-  empty: {
-    marginTop: 40,
+
+  buttonRow: {
+    flexDirection: "row",
+    gap: 10,
+  },
+
+  smallButton: {
+    flex: 1,
+    minHeight: 46,
+    borderRadius: 14,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
+  editButton: {
+    backgroundColor: "#FDE4F0",
+    borderWidth: 1,
+    borderColor: "#F3BDD7",
+  },
+
+  deleteButton: {
+    backgroundColor: "#FFF1F3",
+    borderWidth: 1,
+    borderColor: "#F1B8C0",
+  },
+
+  editButtonText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#B3236F",
+  },
+
+  deleteButtonText: {
+    fontSize: 15,
+    fontWeight: "700",
+    color: "#C4455D",
+  },
+
+  emptyState: {
+    backgroundColor: "#FFFFFF",
+    borderRadius: 24,
+    padding: 24,
+    borderWidth: 1,
+    borderColor: "#F0C9DB",
+    alignItems: "center",
+    marginTop: 20,
+  },
+
+  emptyTitle: {
+    fontSize: 22,
+    fontWeight: "700",
+    color: "#2A1721",
+    marginBottom: 8,
+  },
+
+  emptyText: {
+    fontSize: 15,
+    lineHeight: 22,
     textAlign: "center",
-    color: "#888",
+    color: "#7A5567",
   },
 });

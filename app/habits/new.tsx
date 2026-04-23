@@ -1,16 +1,18 @@
+// Allow user to add new habit
 import { useRouter } from "expo-router";
 import { useEffect, useState } from "react";
 import {
-    Button,
-    StyleSheet,
-    Text,
-    TextInput,
-    TouchableOpacity,
-    View,
+  Button,
+  StyleSheet,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  View,
 } from "react-native";
 import { db } from "../../src/db";
 import { categories, habits } from "../../src/db/schema";
 
+// Screen that allows user to create new habit
 export default function NewHabitScreen() {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
@@ -18,7 +20,7 @@ export default function NewHabitScreen() {
   const [selectedCategoryId, setSelectedCategoryId] = useState<number | null>(null);
 
   const router = useRouter();
-
+// When screen loads, retrieve all categories from the DB 
   useEffect(() => {
     const loadCategories = async () => {
       const results = await db.select().from(categories);
@@ -31,16 +33,16 @@ export default function NewHabitScreen() {
 
     loadCategories();
   }, []);
-
+// Save new habit to the DB
   const handleSave = async () => {
-    if (!name || !selectedCategoryId) return;
-
+    if (!name || !selectedCategoryId) return; // check fields are complete before saving
+// insert new habit inot the DB 
     await db.insert(habits).values({
       userId: 1,
       categoryId: selectedCategoryId,
       name,
       description,
-      metricType: "boolean",
+      metricType: "boolean", // habit is tracked as completed or not
       createdAt: new Date().toISOString(),
     });
 
@@ -49,13 +51,14 @@ export default function NewHabitScreen() {
 
   return (
     <View style={styles.container}>
+      {/* Enter habit name */}
       <TextInput
         placeholder="Habit name"
         value={name}
         onChangeText={setName}
         style={styles.input}
       />
-
+{/* Enter optional description  */}
       <TextInput
         placeholder="Description"
         value={description}
@@ -64,7 +67,7 @@ export default function NewHabitScreen() {
       />
 
       <Text style={styles.label}>Choose Category</Text>
-
+{/* Display categories */}
       {categoryList.map((category) => {
         const isSelected = selectedCategoryId === category.id;
 
@@ -80,14 +83,14 @@ export default function NewHabitScreen() {
             <View
               style={[
                 styles.colorDot,
-                { backgroundColor: category.color || "#999" },
+                { backgroundColor: category.color || "#999" }, // category colour
               ]}
             />
             <Text style={styles.categoryText}>{category.name}</Text>
           </TouchableOpacity>
         );
       })}
-
+{/* Save Habit button */}
       <Button title="Save Habit" onPress={handleSave} />
     </View>
   );

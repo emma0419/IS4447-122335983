@@ -1,3 +1,4 @@
+// Add new catageory
 import { useRouter } from "expo-router";
 import { useState } from "react";
 import { Button, StyleSheet, TextInput, View } from "react-native";
@@ -13,7 +14,7 @@ export default function NewCategoryScreen() {
 
   const handleSave = async () => {
     if (!name || !color || !icon) return;
-
+// Insert neW category record into the DB
     await db.insert(categories).values({
       userId: 1,
       name,
@@ -26,21 +27,22 @@ export default function NewCategoryScreen() {
   };
 
   return (
+    // Let user input category name 
     <View style={styles.container}>
-      <TextInput
+      <TextInput 
         placeholder="Category name"
         value={name}
         onChangeText={setName}
         style={styles.input}
       />
-
+{/* Define cat colour */}
       <TextInput
         placeholder="Color (example: #22c55e)"
         value={color}
         onChangeText={setColor}
         style={styles.input}
       />
-
+{/* Chose cat icon */}
       <TextInput
         placeholder="Icon (example: heart)"
         value={icon}
