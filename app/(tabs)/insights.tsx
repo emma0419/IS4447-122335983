@@ -1,6 +1,7 @@
-import { useFocusEffect } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
+    Button,
     Dimensions,
     ScrollView,
     StyleSheet,
@@ -17,13 +18,19 @@ const screenWidth = Dimensions.get("window").width;
 type FilterType = "daily" | "weekly" | "monthly";
 
 export default function InsightsScreen() {
-  const [selectedFilter, setSelectedFilter] = useState<FilterType>("daily");
+  const router = useRouter();
+
+  const [selectedFilter, setSelectedFilter] =
+    useState<FilterType>("daily");
   const [totalLogs, setTotalLogs] = useState(0);
   const [totalValue, setTotalValue] = useState(0);
   const [chartLabels, setChartLabels] = useState<string[]>([]);
   const [chartValues, setChartValues] = useState<number[]>([]);
 
-  const isInSelectedPeriod = (logDate: string, filter: FilterType) => {
+  const isInSelectedPeriod = (
+    logDate: string,
+    filter: FilterType
+  ) => {
     const today = new Date();
     const log = new Date(logDate);
 
@@ -33,7 +40,8 @@ export default function InsightsScreen() {
 
     if (filter === "weekly") {
       const diffInMs = today.getTime() - log.getTime();
-      const diffInDays = diffInMs / (1000 * 60 * 60 * 24);
+      const diffInDays =
+        diffInMs / (1000 * 60 * 60 * 24);
       return diffInDays >= 0 && diffInDays <= 7;
     }
 
@@ -57,12 +65,21 @@ export default function InsightsScreen() {
 
     setTotalLogs(filteredLogs.length);
 
-    const total = filteredLogs.reduce((sum, log) => sum + log.value, 0);
+    const total = filteredLogs.reduce(
+      (sum, log) => sum + log.value,
+      0
+    );
     setTotalValue(total);
 
     const habitTotals = habitResults.map((habit) => {
-      const relatedLogs = filteredLogs.filter((log) => log.habitId === habit.id);
-      const habitTotal = relatedLogs.reduce((sum, log) => sum + log.value, 0);
+      const relatedLogs = filteredLogs.filter(
+        (log) => log.habitId === habit.id
+      );
+
+      const habitTotal = relatedLogs.reduce(
+        (sum, log) => sum + log.value,
+        0
+      );
 
       return {
         name: habit.name,
@@ -84,57 +101,38 @@ export default function InsightsScreen() {
     <ScrollView contentContainerStyle={styles.container}>
       <Text style={styles.title}>Insights</Text>
 
+      {/* NEW BUTTON */}
+      <Button
+        title="View Targets"
+        onPress={() => router.push("/targets")}
+      />
+
+      <View style={{ height: 16 }} />
+
       <View style={styles.filterRow}>
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            selectedFilter === "daily" && styles.activeFilterButton,
-          ]}
-          onPress={() => setSelectedFilter("daily")}
-        >
-          <Text
+        {["daily", "weekly", "monthly"].map((filter) => (
+          <TouchableOpacity
+            key={filter}
             style={[
-              styles.filterText,
-              selectedFilter === "daily" && styles.activeFilterText,
+              styles.filterButton,
+              selectedFilter === filter &&
+                styles.activeFilterButton,
             ]}
+            onPress={() =>
+              setSelectedFilter(filter as FilterType)
+            }
           >
-            Daily
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            selectedFilter === "weekly" && styles.activeFilterButton,
-          ]}
-          onPress={() => setSelectedFilter("weekly")}
-        >
-          <Text
-            style={[
-              styles.filterText,
-              selectedFilter === "weekly" && styles.activeFilterText,
-            ]}
-          >
-            Weekly
-          </Text>
-        </TouchableOpacity>
-
-        <TouchableOpacity
-          style={[
-            styles.filterButton,
-            selectedFilter === "monthly" && styles.activeFilterButton,
-          ]}
-          onPress={() => setSelectedFilter("monthly")}
-        >
-          <Text
-            style={[
-              styles.filterText,
-              selectedFilter === "monthly" && styles.activeFilterText,
-            ]}
-          >
-            Monthly
-          </Text>
-        </TouchableOpacity>
+            <Text
+              style={[
+                styles.filterText,
+                selectedFilter === filter &&
+                  styles.activeFilterText,
+              ]}
+            >
+              {filter.toUpperCase()}
+            </Text>
+          </TouchableOpacity>
+        ))}
       </View>
 
       <View style={styles.card}>
@@ -143,11 +141,15 @@ export default function InsightsScreen() {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.cardTitle}>Total Logged Value</Text>
+        <Text style={styles.cardTitle}>
+          Total Logged Value
+        </Text>
         <Text style={styles.cardValue}>{totalValue}</Text>
       </View>
 
-      <Text style={styles.sectionTitle}>Habit Totals</Text>
+      <Text style={styles.sectionTitle}>
+        Habit Totals
+      </Text>
 
       {chartLabels.length > 0 ? (
         <BarChart
@@ -157,20 +159,22 @@ export default function InsightsScreen() {
           }}
           width={screenWidth - 32}
           height={260}
-          yAxisLabel=""
-          yAxisSuffix=""
           fromZero
           chartConfig={{
             backgroundGradientFrom: "#ffffff",
             backgroundGradientTo: "#ffffff",
             decimalPlaces: 0,
-            color: (opacity = 1) => `rgba(0, 122, 255, ${opacity})`,
-            labelColor: (opacity = 1) => `rgba(0, 0, 0, ${opacity})`,
+            color: (opacity = 1) =>
+              `rgba(0, 122, 255, ${opacity})`,
+            labelColor: (opacity = 1) =>
+              `rgba(0, 0, 0, ${opacity})`,
           }}
           style={styles.chart}
         />
       ) : (
-        <Text style={styles.empty}>No data available for chart</Text>
+        <Text style={styles.empty}>
+          No data available for chart
+        </Text>
       )}
     </ScrollView>
   );

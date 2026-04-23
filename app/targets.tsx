@@ -2,15 +2,15 @@ import { eq } from "drizzle-orm";
 import { useFocusEffect, useRouter } from "expo-router";
 import { useCallback, useState } from "react";
 import {
-    Alert,
-    Button,
-    FlatList,
-    StyleSheet,
-    Text,
-    View,
+  Alert,
+  Button,
+  FlatList,
+  StyleSheet,
+  Text,
+  View,
 } from "react-native";
-import { db } from "../../src/db";
-import { categories, habitLogs, habits, targets } from "../../src/db/schema";
+import { db } from "../src/db";
+import { categories, habitLogs, habits, targets } from "../src/db/schema";
 
 export default function TargetsScreen() {
   const [targetList, setTargetList] = useState<any[]>([]);

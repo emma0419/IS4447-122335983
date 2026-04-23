@@ -58,7 +58,18 @@ export default function HabitsScreen() {
     <View style={styles.container}>
       <Text style={styles.title}>My Habits</Text>
 
-      <Button title="Add Habit" onPress={() => router.push("/habits/new")} />
+      {/* NEW BUTTON */}
+      <Button
+        title="Manage Categories"
+        onPress={() => router.push("/categories")}
+      />
+
+      <View style={{ height: 10 }} />
+
+      <Button
+        title="Add Habit"
+        onPress={() => router.push("/habits/new")}
+      />
 
       <FlatList
         data={habitList}
@@ -67,10 +78,14 @@ export default function HabitsScreen() {
           <View style={styles.card}>
             <Text style={styles.habitName}>{item.name}</Text>
 
-            <Text style={styles.category}>Category: {item.categoryName}</Text>
+            <Text style={styles.category}>
+              Category: {item.categoryName}
+            </Text>
 
             {item.description && (
-              <Text style={styles.description}>{item.description}</Text>
+              <Text style={styles.description}>
+                {item.description}
+              </Text>
             )}
 
             <Button
@@ -90,7 +105,9 @@ export default function HabitsScreen() {
             />
           </View>
         )}
-        ListEmptyComponent={<Text style={styles.empty}>No habits yet</Text>}
+        ListEmptyComponent={
+          <Text style={styles.empty}>No habits yet</Text>
+        }
       />
     </View>
   );
